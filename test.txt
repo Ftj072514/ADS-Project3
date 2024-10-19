@@ -1,0 +1,66 @@
+function solve_fence_layout(grid, n, m):
+    # 初始化结果矩阵，保存每个连接器的方向信息
+    result = []
+
+    # 尝试在 (row, col) 位置开始放置/连接
+    if backtrack(grid, n, m, 0, 0, result):
+        print_result(result)
+    else:
+        print("No Solution")
+
+
+function backtrack(grid, n, m, row, col, result):
+    # 如果所有行都处理完，表示找到解
+    if row == n:
+        return True
+
+    # 移动到下一列或下一行
+    next_row, next_col = row, col + 1
+    if next_col == m:
+        next_row, next_col = row + 1, 0
+
+    # 如果当前位置没有连接器，直接跳过
+    if grid[row][col] == 0:
+        return backtrack(grid, n, m, next_row, next_col, result)
+
+    # 遍历所有可能的方向组合 (up, down, left, right)
+    for up, down, left, right in all_valid_connections(grid, row, col, n, m):
+        # 尝试设置当前连接器的方向
+        if is_valid(grid, row, col, up, down, left, right):
+            result.append((row + 1, col + 1, up, down, left, right))  # 存储结果
+            grid[row][col] = -1  # 标记已访问，避免重复
+
+            # 递归到下一个位置
+            if backtrack(grid, n, m, next_row, next_col, result):
+                return True  # 找到解
+
+            # 回溯：撤销当前选择
+            result.pop()
+            grid[row][col] = grid[row][col]  # 恢复原状态
+
+    return False  # 如果没有合适的方向组合
+
+
+function all_valid_connections(grid, row, col, n, m):
+    # 生成所有合法的方向组合 (up, down, left, right) 对应 k-way
+    k = grid[row][col]
+    return possible_combinations_for_k(k)
+
+
+function is_valid(grid, row, col, up, down, left, right):
+    # 检查当前方向组合是否与相邻单元格兼容
+    if up == 1 and (row == 0 or grid[row - 1][col] < 1):  # 上边界或没有上方连接
+        return False
+    if down == 1 and (row == n - 1 or grid[row + 1][col] < 1):  # 下边界或没有下方连接
+        return False
+    if left == 1 and (col == 0 or grid[row][col - 1] < 1):  # 左边界或没有左侧连接
+        return False
+    if right == 1 and (col == m - 1 or grid[row][col + 1] < 1):  # 右边界或没有右侧连接
+        return False
+    return True
+
+
+function print_result(result):
+    # 打印最终的解决方案
+    for r in result:
+        print(" ".join(map(str, r)))
