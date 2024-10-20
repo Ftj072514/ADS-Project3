@@ -7,7 +7,9 @@ struct squarenode {
     int col;
     // num of connectors in one square
     int deg;
+    int rem_deg;
     // 1 if there is a connector in that direction(in the order of up, down, left and right)
+    // -1 if there is a connector and it is fixed
     int direc[4];
 }typedef node;
 
