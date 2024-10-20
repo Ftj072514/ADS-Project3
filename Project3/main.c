@@ -14,6 +14,7 @@ struct squarenode {
     int direc[4];
 }typedef node;
 
+void all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections);
 
 int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size);
 int main() {
@@ -72,7 +73,7 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
     int** connections = (int**)malloc(sizeof(int*) * num);  //store the possible indexes of direc[]: if num=2 and we choose up and left, then return [0,2]
     for(int i = 0; i < num; i++)
         connections[i] = (int*)malloc(sizeof(int) * garden[row][col]);
-    connections = all_valid_connections(garden, r, c, row, col);
+    all_valid_connections(garden, r, c, row, col, connector, connections);
     for(int i = 0; i < num; i++){
         if(is_valid(connections[i], garden, r, c, row, col, connector)){
             for(int j = 0; j < garden[row][col]; j++){
@@ -83,4 +84,47 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
         }
     }
     return 0;
+}
+
+//the enumeration of connector is down and right ,the left and up connector are simply -1 or 0,and they out of enmeration
+void all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections)
+{
+    int t=0;
+    
+    for(int i=0;i<r*c;i++)
+    {
+        if(connector[t].row == row && connector[t].col == col)break;
+        t++;
+    }
+
+    //connector[t] is exact connector
+
+    switch(connector[t].rem_deg){
+        case 0: {
+            connections[0][0] = connector[t].direc[0];
+            connections[0][1] = 0;
+            connections[0][2] = connector[t].direc[2];
+            connections[0][3] = 0;
+            return ;
+        }
+        case 1: {
+            for(int i=0;i<2;i++)
+            {
+                connections[0][0] = connector[t].direc[0];
+                connections[0][2] = connector[t].direc[2];
+            }
+            connections[0][1] = 1;
+            connections[0][3] = 0;
+            connections[1][1] = 0;
+            connections[1][3] = 1;
+            return ;
+        }
+        case 2: {
+            connections[0][0] = connector[t].direc[0];
+            connections[0][1] = 1;
+            connections[0][2] = connector[t].direc[2];
+            connections[0][3] = 1;
+            return ;
+        }
+    }
 }
