@@ -15,6 +15,7 @@ struct squarenode {
 }typedef node;
 
 void all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections);
+int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector);
 
 int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size);
 int main() {
@@ -127,4 +128,58 @@ void all_valid_connections(int** garden,int r,int c,int row,int col,node* connec
             return ;
         }
     }
+}
+
+int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector)
+{
+    int t=0;
+    
+    for(int i=0;i<r*c;i++)
+    {
+        if(connector[t].row == row && connector[t].col == col)break;
+        t++;
+    }
+
+    if(connection[3] == 1) //right direction
+    {
+        for(int i=col+1;i<c;i++)
+        {
+            if(garden[row][i] != 0)
+            {
+                for(int j=0;j<r*c;j++)
+                {
+                    if(connector[j].row == row && connector[j].col == i)
+                    {
+                        if(connector[j].rem_deg == 0)return 0;
+                        connector[j].rem_deg --;
+                        connector[j].direc[0] = -1;
+                        goto Next;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+Next:
+    if(connection[1] == 1) //down direction
+    {
+        for(int i=row+1;i<r;i++)
+        {
+            if(garden[i][col] != 0)
+            {
+               for(int j=0;j<r*c;j++)
+               { 
+                if(connector[j].row == i && connector[j].col == col)
+                {
+                    if(connector[j].rem_deg == 0)return 0;
+                    connector[j].rem_deg --;
+                    connector[j].direc[2] = -1;
+                    return 1;
+                }
+               } 
+            }
+        }
+        return 0;
+    }
+    return 1;
 }
