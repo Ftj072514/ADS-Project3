@@ -14,7 +14,7 @@ struct squarenode {
     int direc[4];
 }typedef node;
 
-void all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections);
+int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections);
 int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector);
 
 int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size);
@@ -88,7 +88,7 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
 }
 
 //the enumeration of connector is down and right ,the left and up connector are simply -1 or 0,and they out of enmeration
-void all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections)
+int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections)
 {
     int t=0;
     
@@ -100,13 +100,14 @@ void all_valid_connections(int** garden,int r,int c,int row,int col,node* connec
 
     //connector[t] is exact connector
 
+    if(connector[t].rem_deg>2)return 0;
     switch(connector[t].rem_deg){
         case 0: {
             connections[0][0] = connector[t].direc[0];
             connections[0][1] = 0;
             connections[0][2] = connector[t].direc[2];
             connections[0][3] = 0;
-            return ;
+            return 1;
         }
         case 1: {
             for(int i=0;i<2;i++)
@@ -118,14 +119,14 @@ void all_valid_connections(int** garden,int r,int c,int row,int col,node* connec
             connections[0][3] = 0;
             connections[1][1] = 0;
             connections[1][3] = 1;
-            return ;
+            return 1;
         }
         case 2: {
             connections[0][0] = connector[t].direc[0];
             connections[0][1] = 1;
             connections[0][2] = connector[t].direc[2];
             connections[0][3] = 1;
-            return ;
+            return 1;
         }
     }
 }
