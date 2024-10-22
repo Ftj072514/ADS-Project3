@@ -152,7 +152,7 @@ int is_valid(int* connection, int** garden, int r, int c, int row, int col, node
                     {
                         if(connector[j].rem_deg == 0)return 0;
                         connector[j].rem_deg --;
-                        connector[j].direc[0] = -1;
+                        connector[j].direc[0] = 1;
                         goto Next;
                     }
                 }
@@ -173,7 +173,7 @@ Next:
                 {
                     if(connector[j].rem_deg == 0)return 0;
                     connector[j].rem_deg --;
-                    connector[j].direc[2] = -1;
+                    connector[j].direc[2] = 1;
                     return 1;
                 }
                } 
