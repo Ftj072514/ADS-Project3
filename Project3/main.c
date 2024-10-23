@@ -64,18 +64,16 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
         return backtrack(garden, r, c, next_row, next_col, connector, size); //if this node is not a connector
     
     int num; //number of possible combinations 
-    switch(garden[row][col]){
-        case 1: 
-        case 3: num = 4; break;   //C(4,1) = C(4,3) = 4
-        case 2: num = 6; break;
-        case 4: num = 1; break;
+    switch(connector[size].rem_deg){
+        case 1: num = 2; break;
+        case 2: num = 1; break;
+        case 3:  
+        case 4: return 0;
     }
     int** connections = (int**)malloc(sizeof(int*) * num);  //store the possible indexes of direc[]: if num=2 and we choose up and left, then return [0,2]
     for(int i = 0; i < num; i++)
         connections[i] = (int*)malloc(sizeof(int) * garden[row][col]);
-    int check = all_valid_connections(garden, r, c, row, col, connector, connections, size);
-    if(check == 0)
-            return 0;
+    all_valid_connections(garden, r, c, row, col, connector, connections, size);
     for(int i = 0; i < num; i++){
         if(is_valid(connections[i], garden, r, c, row, col, connector)){
             for(int j = 0; j < garden[row][col]; j++){
@@ -106,8 +104,8 @@ int all_valid_connections(int** garden,int r,int c,int row,int col,node* connect
         case 1: {
             for(int i=0;i<2;i++)
             {
-                connections[0][0] = connector[t].direc[0];
-                connections[0][2] = connector[t].direc[2];
+                connections[i][0] = connector[t].direc[0];
+                connections[i][2] = connector[t].direc[2];
             }
             connections[0][1] = 1;
             connections[0][3] = 0;
