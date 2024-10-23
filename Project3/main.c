@@ -14,9 +14,8 @@ struct squarenode {
     int direc[4];
 }typedef node;
 
-int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections);
+int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections，int size);
 int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector);
-
 int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size);
 int main() {
     int r,c, num = 0, capacity = 20;
@@ -74,7 +73,9 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
     int** connections = (int**)malloc(sizeof(int*) * num);  //store the possible indexes of direc[]: if num=2 and we choose up and left, then return [0,2]
     for(int i = 0; i < num; i++)
         connections[i] = (int*)malloc(sizeof(int) * garden[row][col]);
-    all_valid_connections(garden, r, c, row, col, connector, connections);
+    int check = all_valid_connections(garden, r, c, row, col, connector, connections, size);
+    if(check == 0)
+            return 0;
     for(int i = 0; i < num; i++){
         if(is_valid(connections[i], garden, r, c, row, col, connector)){
             for(int j = 0; j < garden[row][col]; j++){
@@ -88,16 +89,9 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
 }
 
 //the enumeration of connector is down and right ,the left and up connector are simply -1 or 0,and they out of enmeration
-int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections)
+int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections, int size)
 {
-    int t=0;
-    
-    for(int i=0;i<r*c;i++)
-    {
-        if(connector[t].row == row && connector[t].col == col)break;
-        t++;
-    }
-
+    int t = size;
     //connector[t] is exact connector
 
     if(connector[t].rem_deg>2)return 0;
