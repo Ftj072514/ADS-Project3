@@ -14,9 +14,9 @@ struct squarenode {
     int direc[4];
 }typedef node;
 
-int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections，int size);
-int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector, int size);
-int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size);
+int all_valid_connections(int** garden,int r,int c,int row,int col,node* connector,int** connections, int size);
+int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector, int size, int num);
+int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size, int numofConnec);
 
 int main() {
     int r,c, num = 0, capacity = 20;
@@ -42,7 +42,7 @@ int main() {
             }
         }
     }
-    if(backtrack(garden, r, c, 0, 0, connector, 0)){
+    if(backtrack(garden, r, c, 0, 0, connector, 0, num)){
         for(int i = 0; i < num ; i++){
             printf("%d %d %d %d %d %d\n", connector[i].row, connector[i].col, connector[i].direc[0], connector[i].direc[1], connector[i].direc[2], connector[i].direc[3]);
         }
@@ -53,7 +53,7 @@ int main() {
     return 0;
 }
 
-int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size) {
+int backtrack(int** garden, int r, int c, int row, int col, node* connector, int size, int numofConnec) {
     if(row == r)  //every row has been processed
         return 1;
     int next_row = row, next_col = col + 1;
@@ -62,7 +62,7 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
         next_row = row + 1;
     }
     if(garden[row][col] == 0)
-        return backtrack(garden, r, c, next_row, next_col, connector, size); //if this node is not a connector
+        return backtrack(garden, r, c, next_row, next_col, connector, size, numofConnec); //if this node is not a connector
     
     int num; //number of possible combinations 
     switch(connector[size].rem_deg){
@@ -71,17 +71,27 @@ int backtrack(int** garden, int r, int c, int row, int col, node* connector, int
         case 3:  
         case 4: return 0;
     }
-    int** connections = (int**)malloc(sizeof(int*) * num);  //store the possible indexes of direc[]: if num=2 and we choose up and left, then return [0,2]
+    int** connections = (int**)malloc(sizeof(int*) * num);  //store the possible direc[]
     for(int i = 0; i < num; i++)
-        connections[i] = (int*)malloc(sizeof(int) * garden[row][col]);
+        connections[i] = (int*)malloc(sizeof(int) * 4);
     all_valid_connections(garden, r, c, row, col, connector, connections, size);
+    node* prev = (node*)malloc(sizeof(node) * (num - size));
+    for(int i = size; i < num; i++){
+        prev[i].direc[1] = connector[i].direc[1];
+        prev[i].direc[3] = connector[i].direc[3];
+        prev[i].rem_deg = connector[i].rem_deg;
+    }
     for(int i = 0; i < num; i++){
-        if(is_valid(connections[i], garden, r, c, row, col, connector, size)){
-            for(int j = 0; j < garden[row][col]; j++){
-                connector[size].direc[connections[i][j]] = 1;
-            }
-            if(backtrack(garden, r, c, next_row, next_col, connector, ++size))
+        if(is_valid(connections[i], garden, r, c, row, col, connector, size, numofConnec)){
+            if(backtrack(garden, r, c, next_row, next_col, connector, size + 1, numofConnec))
                 return 1;
+            else{
+                for(int i = size; i < num; i++){
+                    connector[i].direc[1] = prev[i].direc[1];
+                    connector[i].direc[3] = prev[i].direc[3];
+                    connector[i].rem_deg = prev[i].rem_deg;
+                }
+            }
         }
     }
     return 0;
@@ -124,23 +134,23 @@ int all_valid_connections(int** garden,int r,int c,int row,int col,node* connect
     }
 }
 
-int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector, int size)
+int is_valid(int* connection, int** garden, int r, int c, int row, int col, node* connector, int size, int num)
 {
     int t=size;
-
+    int right, flag = 0;
     if(connection[3] == 1) //right direction
     {
         for(int i=col+1;i<c;i++)
         {
             if(garden[row][i] != 0)
             {
-                for(int j=0;j<r*c;j++)
+                for(int j=size+1;j<num;j++)
                 {
                     if(connector[j].row == row && connector[j].col == i)
                     {
                         if(connector[j].rem_deg == 0)return 0;
-                        connector[j].rem_deg --;
-                        connector[j].direc[0] = 1;
+                        right = j;
+                        flag = 1;
                         goto Next;
                     }
                 }
@@ -155,13 +165,21 @@ Next:
         {
             if(garden[i][col] != 0)
             {
-               for(int j=0;j<r*c;j++)
+               for(int j=size+1;j<num;j++)
                { 
                 if(connector[j].row == i && connector[j].col == col)
                 {
                     if(connector[j].rem_deg == 0)return 0;
                     connector[j].rem_deg --;
-                    connector[j].direc[2] = 1;
+                    connector[j].direc[0] = 1;
+                    connector[t].rem_deg--;
+                    connector[t].direc[1] = 1;
+                    if(flag){
+                        connector[right].rem_deg --;
+                        connector[right].direc[2] = 1;
+                        connector[t].rem_deg--;
+                        connector[t].direc[3] = 1;
+                    }
                     return 1;
                 }
                } 
