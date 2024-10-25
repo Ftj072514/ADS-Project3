@@ -52,10 +52,12 @@ int main()
     fprintf(file,"\n\n--------------------------------\n\nhint:\n");
     for(int i=0;i<row;i++)
     {
+    	fprintf(file,"|");
         for(int j=0;j<col;j++)
         {
-            if(garden[i][j] == 0)fprintf(file,"#");
-            else fprintf(file," ");
+            if(garden[i][j] == 0)fprintf(file,"#|");
+            else fprintf(file,"  |");
+            // fprintf(file,"%d ",garden[i][j]);
         }
         fprintf(file,"\n");
     }
