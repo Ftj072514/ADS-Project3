@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define col 50
-#define row 50
+#define col 40
+#define row 40
 
 void process(int** garden,int** g,int i,int j);
 
@@ -48,6 +48,17 @@ int main()
         fprintf(file,"\n");
     }
 
+
+    fprintf(file,"\n\n--------------------------------\n\nhint:\n");
+    for(int i=0;i<row;i++)
+    {
+        for(int j=0;j<col;j++)
+        {
+            if(garden[i][j] == 0)fprintf(file,"#");
+            else fprintf(file," ");
+        }
+        fprintf(file,"\n");
+    }
     fclose(file);
 }
 
