@@ -79,10 +79,12 @@ void process(int** garden,int** g,int i,int j)
         if(j == 0)
         {
             g[i][j] = garden[1][0] + garden[0][1];
+            if(g[i][j] == 0)garden[i][j] = 0;
         }
         else if(j == col - 1)
         {
             g[i][j] = garden[0][col-2] + garden[1][col-1];
+            if(g[i][j] == 0)garden[i][j] = 0;
         }
         else
         {
@@ -92,6 +94,7 @@ void process(int** garden,int** g,int i,int j)
                 case 0: 
                 {
                     g[i][j] = 0;
+                    garden[i][j] = 0;
                     break;
                 }
                 case 1: 
@@ -118,10 +121,12 @@ void process(int** garden,int** g,int i,int j)
         if(j == 0)
         {
             g[i][j] = garden[row-2][0] + garden[row-1][1];
+            if(g[i][j] == 0)garden[i][j] = 0;
         }
         else if(j == col - 1)
         {
             g[i][j] = garden[row-2][col-1] + garden[row-1][col-2];
+            if(g[i][j] == 0)garden[i][j] = 0;
         }
         else
         {
@@ -131,6 +136,7 @@ void process(int** garden,int** g,int i,int j)
                 case 0: 
                 {
                     g[i][j] = 0;
+                    garden[i][j] = 0;
                     break;
                 }
                 case 1: 
@@ -160,6 +166,7 @@ void process(int** garden,int** g,int i,int j)
                 case 0: 
                 {
                     g[i][j] = 0;
+                    garden[i][j] = 0;
                     break;
                 }
                 case 1: 
@@ -188,6 +195,7 @@ void process(int** garden,int** g,int i,int j)
                 case 0: 
                 {
                     g[i][j] = 0;
+                    garden[i][j] = 0;
                     break;
                 }
                 case 1: 
@@ -216,6 +224,7 @@ void process(int** garden,int** g,int i,int j)
                 case 0: 
                 {
                     g[i][j] = 0;
+                    garden[i][j] = 0;
                     break;
                 }
                 case 1: 
