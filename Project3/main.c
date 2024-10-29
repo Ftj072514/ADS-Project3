@@ -17,17 +17,20 @@ struct garden{
     int isEmpty;  // Flag to indicate if the cell is empty (1) or occupied (0)
 }typedef Garden;
 
+Garden** garden;
+node* connector;
+
 // Function prototypes
-int all_valid_connections(Garden** garden, int r, int c, int row, int col, node* connector, int** connections, int size);
-int is_valid(int* connection, Garden** garden, int r, int c, int row, int col, node* connector, int size, int num);
-int backtrack(Garden** garden, int r, int c, int row, int col, node* connector, int size, int numofConnec);
-void undo(Garden** garden, int num, node* connector, int i, int size, int numofConnec);
+int all_valid_connections(int r, int c, int row, int col, int** connections, int size);
+int is_valid(int* connection, int r, int c, int row, int col, int size, int num);
+int backtrack(int r, int c, int row, int col, int size, int numofConnec);
+void undo(int num, int i, int size, int numofConnec);
 
 int main() {
     int r, c, num = 0, capacity = 20;
     scanf("%d %d", &r, &c);  // Read garden dimensions
-    Garden** garden = (Garden**)malloc(sizeof(Garden*) * r);  // Allocate memory for garden grid
-    node* connector = (node*)malloc(sizeof(node) * capacity);  // Allocate memory for connectors array
+    garden = (Garden**)malloc(sizeof(Garden*) * r);  // Allocate memory for garden grid
+    connector = (node*)malloc(sizeof(node) * capacity);  // Allocate memory for connectors array
 
     // Read garden data and initialize structures
     for (int i = 0; i < r; i++) {
@@ -51,7 +54,7 @@ int main() {
     }
 
     // Run backtracking function to find a solution
-    if (backtrack(garden, r, c, 0, 0, connector, 0, num)) {
+    if (backtrack(r, c, 0, 0, 0, num)) {
         for (int i = 0; i < num; i++) {
             printf("%d %d %d %d %d %d\n", connector[i].row + 1, connector[i].col + 1, connector[i].direc[0], connector[i].direc[1], connector[i].direc[2], connector[i].direc[3]);
         }
@@ -62,7 +65,7 @@ int main() {
 }
 
 // Backtracking function to connect all connectors
-int backtrack(Garden** garden, int r, int c, int row, int col, node* connector, int size, int numofConnec) {
+int backtrack(int r, int c, int row, int col, int size, int numofConnec) {
     int flag;
     if (row == r)  // End of rows reached
         return 1;
@@ -72,9 +75,9 @@ int backtrack(Garden** garden, int r, int c, int row, int col, node* connector, 
         next_row = row + 1;
     }
     if (garden[row][col].deg == 0)
-        return backtrack(garden, r, c, next_row, next_col, connector, size, numofConnec);  // Skip non-connector cell
+        return backtrack(r, c, next_row, next_col, size, numofConnec);  // Skip non-connector cell
     else if (connector[size].rem_deg == 0)
-        return backtrack(garden, r, c, next_row, next_col, connector, size + 1, numofConnec);  // Move to next connector if no remaining degree
+        return backtrack(r, c, next_row, next_col, size + 1, numofConnec);  // Move to next connector if no remaining degree
 
     int num;  // Number of possible combinations
     switch (connector[size].rem_deg) {
@@ -87,23 +90,26 @@ int backtrack(Garden** garden, int r, int c, int row, int col, node* connector, 
     int** connections = (int**)malloc(sizeof(int*) * num);  // Store possible connections
     for (int i = 0; i < num; i++)
         connections[i] = (int*)malloc(sizeof(int) * 4);
-    all_valid_connections(garden, r, c, row, col, connector, connections, size);  // Fill connections
+    all_valid_connections(r, c, row, col, connections, size);  // Fill connections
 
     // Try each connection and backtrack
     for (int i = 0; i < num; i++) {
-        if (is_valid(connections[i], garden, r, c, row, col, connector, size, numofConnec)) {
-            if (backtrack(garden, r, c, next_row, next_col, connector, size + 1, numofConnec))
+        if (is_valid(connections[i], r, c, row, col, size, numofConnec)) {
+            if (backtrack(r, c, next_row, next_col, size + 1, numofConnec)){
+                free(connections);
                 return 1;
+            }
             else {
-                undo(garden, num, connector, i, size, numofConnec);  // Undo if path invalid
+                undo(num, i, size, numofConnec);  // Undo if path invalid
             }
         }
     }
+    free(connections);
     return 0;
 }
 
 // Generate all valid connections based on the remaining degree
-int all_valid_connections(Garden** garden, int r, int c, int row, int col, node* connector, int** connections, int size) {
+int all_valid_connections(int r, int c, int row, int col, int** connections, int size) {
     int t = size;  // Current connector index
 
     if (connector[t].rem_deg > 2) return 0;  // Too many connections, return invalid
@@ -137,7 +143,7 @@ int all_valid_connections(Garden** garden, int r, int c, int row, int col, node*
 }
 
 // Check if the current connection is valid based on the garden's layout
-int is_valid(int* connection, Garden** garden, int r, int c, int row, int col, node* connector, int size, int num) {
+int is_valid(int* connection, int r, int c, int row, int col, int size, int num) {
     // Check if the connection would lead to an out-of-bounds error
     if (col == c - 1 && connection[3] == 1 || 
         row == r - 1 && connection[1] == 1 || 
@@ -218,7 +224,7 @@ int is_valid(int* connection, Garden** garden, int r, int c, int row, int col, n
 }
 
 // Undo the last connection made if the path is invalid
-void undo(Garden** garden, int num, node* connector, int i, int size, int numofConnec) {
+void undo(int num, int i, int size, int numofConnec) {
     int flag = 1;  // Flag to track if connections have been undone
     if (num == 2 && i == 0) {  // Handle specific case for two connections
         for (int j = size + 1; j < numofConnec; j++) {  // Loop through connectors
