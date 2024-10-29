@@ -2,253 +2,239 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define col 40
-#define row 40
 
-void process(int** garden,int** g,int i,int j);
+// Define the garden cell structure
+struct garden{
+    int deg;  // Degree requirement for this cell
+    int isEmpty;  // Flag to indicate if the cell is empty (1) or occupied (0)
+}typedef Garden;
 
-int main()
+void generate(Garden** garden,int row,int col,int num);
+
+void generate(Garden** garden,int row,int col,int num)
 {
     srand((unsigned)time(NULL));
-    FILE *file = fopen("output.txt", "w");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
-    int** garden = (int**)malloc(sizeof(int*) * row);
-    for(int i=0;i<row;i++)
-        garden[i] = (int*)malloc(sizeof(int) * col);
-
-    fprintf(file,"%d %d\n",row,col);
-
-    int x;
     for(int i=0;i<row;i++)
     {
         for(int j=0;j<col;j++)
         {
-            x = (rand() % 4) + 1;
-            if(x == 1)garden[i][j] = 1;
-            else garden[i][j] = 0;
+            garden[i][j].deg = 0;
+            garden[i][j].isEmpty = 1;
         }
     }
-
-
-
-    int** g = (int**)malloc(sizeof(int*) * row);
-    for(int i=0;i<row;i++)
-        g[i] = (int*)malloc(sizeof(int) * col);
-
-    for(int i=0;i<row;i++)
+    int remain = num;
+    int r,c;
+    int direc[4]; // up down left right
+    while(1)
     {
-        for(int j=0;j<col;j++)
-        {
-            process(garden,g,i,j);
-            fprintf(file,"%d ",g[i][j]);
-        }
-        fprintf(file,"\n");
-    }
+START:
+        if(remain == 0)break;
+RA:
+        r = rand() % row;
+        c = rand() % col;
 
+        if(garden[r][c].deg != 0)goto RA;
 
-    fprintf(file,"\n\n--------------------------------\n\nhint:\n");
-    for(int i=0;i<row;i++)
-    {
-    	fprintf(file,"|");
-        for(int j=0;j<col;j++)
+        if(r == 0)direc[0] = 0;
+        else direc[0] = rand() % 2;
+        if(r == row-1)direc[1] = 0;
+        else direc[1] = rand() % 2;
+        if(c == 0)direc[2] = 0;
+        else direc[2] = rand() % 2;
+        if(c == col-1)direc[3] = 0;
+        else direc[3] = rand() % 2;
+
+        if(direc[0] + direc[1] + direc[2] + direc[3] == 0)goto RA;
+        //generate ain't for free!
+        garden[r][c].isEmpty = 0;
+
+        printf("generate:(%d,%d) degree:(%d,%d,%d,%d)\n",r,c,direc[0],direc[1],direc[2],direc[3]);
+
+        remain -- ;
+        garden[r][c].deg = direc[0] + direc[1] + direc[2] + direc[3];
+
+        if(remain == 0)goto START;
+        
+        if(direc[0] == 1)
         {
-            if(garden[i][j] == 0)fprintf(file,"#|");
-            else fprintf(file,"  |");
-            // fprintf(file,"%d ",garden[i][j]);
+            int x=0,y;
+            for(int i=r-1;i>=0;i--)
+            {
+                if(garden[i][c].isEmpty == 0)
+                {
+                    x = i;
+                    break;
+                }
+            }
+            y = rand() % (r - x) + x;
+            if(garden[y][c].deg > 0)garden[y][c].deg ++;
+            else if (garden[y][c].isEmpty == 1)
+            {
+                garden[y][c].deg = 1;
+                remain --;
+            }
+            else
+            {
+                garden[y][c].deg = 3;
+                remain --;
+            }
+            for(int i=y;i<r;i++)
+            {
+                garden[i][c].isEmpty = 0;
+            }
+
+            printf("generate:(%d,%d)\n",y,c);
         }
-        fprintf(file,"\n");
+
+        if(remain == 0)goto START;
+
+        if(direc[1] == 1)
+        {
+            int x=row-1,y;
+            for(int i=r+1;i<row;i++)
+            {
+                if(garden[i][c].isEmpty == 0)
+                {
+                    x = i;
+                    break;
+                }
+            }
+            y = rand() % (x - r) + r + 1;
+            if(garden[y][c].deg > 0)garden[y][c].deg ++;
+            else if (garden[y][c].isEmpty == 1)
+            {
+                garden[y][c].deg = 1;
+                remain --;
+            }
+            else
+            {
+                garden[y][c].deg = 3;
+                remain --;
+            }
+            for(int i=r+1;i<y;i++)
+            {
+                garden[i][c].isEmpty = 0;
+            }
+
+            printf("generate:(%d,%d)\n",y,c);
+        }
+
+        if(remain == 0)goto START;
+
+        if(direc[2] == 1)
+        {
+            int x=0,y;
+            for(int i=c-1;i>=0;i--)
+            {
+                if(garden[r][i].isEmpty == 0)
+                {
+                    x = i;
+                    break;
+                }
+            }
+            y = rand() % (c - x) + x;
+            if(garden[r][y].deg > 0)garden[r][y].deg ++;
+            else if (garden[r][y].isEmpty == 1)
+            {
+                garden[r][y].deg = 1;
+                remain --;
+            }
+            else
+            {
+                garden[r][y].deg = 3;
+                remain --;
+            }
+            for(int i=y;i<c;i++)
+            {
+                garden[r][i].isEmpty = 0;
+            }
+
+            printf("generate:(%d,%d)\n",r,y);
+        }
+
+        if(remain == 0)goto START;
+
+        if(direc[3] == 1)
+        {
+            int x=col-1,y;
+            for(int i=c+1;i<col;i++)
+            {
+                if(garden[r][i].isEmpty == 0)
+                {
+                    x = i;
+                    break;
+                }
+            }
+            y = rand() % (x - c) + c + 1;
+            if(garden[r][y].deg > 0)garden[r][y].deg ++;
+            else if (garden[r][y].isEmpty == 1)
+            {
+                garden[r][y].deg = 1;
+                remain --;
+            }
+            else
+            {
+                garden[r][y].deg = 3;
+                remain --;
+            }
+            for(int i=c;i<y;i++)
+            {
+                garden[r][i].isEmpty = 0;
+            }
+
+            printf("generate:(%d,%d)\n",r,y);
+        }
+        
+        for(int i=0;i<row;i++)
+        {
+            for(int j=0;j<col;j++)
+            {
+                printf("%d ",garden[i][j].deg);
+            }
+            printf("\n");
+        }
+
     }
-    fclose(file);
 }
 
-void process(int** garden,int** g,int i,int j)
-{
-    int degree;
+// int main()
+// {
+//     int row,col;
+//     row = 10;
+//     col = 10;
+//     int num = 10;
+//     Garden** garden = (Garden**)malloc(sizeof(Garden*) * row);
 
-    if(garden[i][j] == 0)
-    {
-        g[i][j] = 0;
-        return ;
-    }
+//     for (int i = 0; i < row; i++) {
+//         garden[i] = (Garden*)malloc(sizeof(Garden) * col);
+//     }
 
-    if(i == 0)
-    {
-        if(j == 0)
-        {
-            g[i][j] = garden[1][0] + garden[0][1];
-            if(g[i][j] == 0)garden[i][j] = 0;
-        }
-        else if(j == col - 1)
-        {
-            g[i][j] = garden[0][col-2] + garden[1][col-1];
-            if(g[i][j] == 0)garden[i][j] = 0;
-        }
-        else
-        {
-            degree = garden[0][j-1] + garden[0][j+1] + garden[1][j]; //degree
-            switch(degree)
-            {
-                case 0: 
-                {
-                    g[i][j] = 0;
-                    garden[i][j] = 0;
-                    break;
-                }
-                case 1: 
-                {
-                    g[i][j] = 1;
-                    break;
-                }
-                case 2:
-                {
-                    if(garden[1][j] == 0)g[i][j] = 0;
-                    else g[i][j] = 2;
-                    break;
-                }
-                case 3:
-                {
-                    g[i][j] = 3;
-                    break;
-                }
-            }
-        }
-    }
-    else if(i == row-1)
-    {
-        if(j == 0)
-        {
-            g[i][j] = garden[row-2][0] + garden[row-1][1];
-            if(g[i][j] == 0)garden[i][j] = 0;
-        }
-        else if(j == col - 1)
-        {
-            g[i][j] = garden[row-2][col-1] + garden[row-1][col-2];
-            if(g[i][j] == 0)garden[i][j] = 0;
-        }
-        else
-        {
-            degree = garden[row-1][j-1] + garden[row-1][j+1] + garden[row-2][j];
-            switch(degree)
-            {
-                case 0: 
-                {
-                    g[i][j] = 0;
-                    garden[i][j] = 0;
-                    break;
-                }
-                case 1: 
-                {
-                    g[i][j] = 1;
-                    break;
-                }
-                case 2:
-                {
-                    if(garden[row-2][j] == 0)g[i][j] = 0;
-                    else g[i][j] = 2;
-                    break;
-                }
-                case 3:
-                {
-                    g[i][j] = 3;
-                    break;
-                }
-            }
-        }
-    }
-    else if (j == 0)
-    {
-        degree = garden[i-1][0] + garden[i+1][0] + garden[i][1];
-        switch(degree)
-            {
-                case 0: 
-                {
-                    g[i][j] = 0;
-                    garden[i][j] = 0;
-                    break;
-                }
-                case 1: 
-                {
-                    g[i][j] = 1;
-                    break;
-                }
-                case 2:
-                {
-                    if(garden[i][1] == 0)g[i][j] = 0;
-                    else g[i][j] = 2;
-                    break;
-                }
-                case 3:
-                {
-                    g[i][j] = 3;
-                    break;
-                }
-            }
-    }
-    else if (j == col - 1)
-    {
-        degree = garden[i-1][col-1] + garden[i+1][col-1] + garden[i][col-2];
-        switch(degree)
-            {
-                case 0: 
-                {
-                    g[i][j] = 0;
-                    garden[i][j] = 0;
-                    break;
-                }
-                case 1: 
-                {
-                    g[i][j] = 1;
-                    break;
-                }
-                case 2:
-                {
-                    if(garden[i][col-2] == 0)g[i][j] = 0;
-                    else g[i][j] = 2;
-                    break;
-                }
-                case 3:
-                {
-                    g[i][j] = 3;
-                    break;
-                }
-            }
-    }
-    else
-    {
-        degree = garden[i-1][j] + garden[i+1][j] + garden[i][j-1] + garden[i][j+1];
-        switch(degree)
-            {
-                case 0: 
-                {
-                    g[i][j] = 0;
-                    garden[i][j] = 0;
-                    break;
-                }
-                case 1: 
-                {
-                    g[i][j] = 1;
-                    break;
-                }
-                case 2:
-                {
-                    if(garden[i-1][j] == garden[i+1][j])g[i][j] = 0;
-                    else g[i][j] = 2;
-                    break;
-                }
-                case 3:
-                {
-                    g[i][j] = 3;
-                    break;
-                }
-                case 4:
-                {
-                    g[i][j] = 4;
-                    break;
-                }
-            }
-    
-    }   
-}
+//     generate(garden,row,col,num);
+
+
+//     FILE *file = fopen("output.txt", "w");
+//     if (file == NULL) {
+//         perror("Error opening file");
+//         return 1;
+//     }
+
+//     for(int i=0;i<row;i++)
+//     {
+//         for(int j=0;j<col;j++)
+//         {
+//             fprintf(file,"%d ",garden[i][j]);
+//         }
+//         fprintf(file,"\n");
+//     }
+
+//     fprintf(file,"------------------------\n");
+//     for(int i=0;i<row;i++)
+//     {
+//         for(int j=0;j<col;j++)
+//         {
+//             if(garden[i][j].isEmpty == 0)fprintf(file,"# ");
+//             else fprintf(file,"   ");
+//         }
+//         fprintf(file,"\n");
+//     }
+// }
