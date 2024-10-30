@@ -9,9 +9,9 @@ struct garden{
     int isEmpty;  // Flag to indicate if the cell is empty (1) or occupied (0)
 }typedef Garden;
 
-void generate(Garden** garden,int row,int col,int num);
+int generate(Garden** garden,int row,int col,int num);
 
-void generate(Garden** garden,int row,int col,int num)
+int generate(Garden** garden,int row,int col,int num)
 {
     srand((unsigned)time(NULL));
     for(int i=0;i<row;i++)
@@ -86,7 +86,7 @@ RA:
             printf("generate:(%d,%d)\n",y,c);
         }
 
-        if(remain == 0)goto START;
+        if(remain == 0)return 1;
 
         if(direc[1] == 1)
         {
@@ -195,46 +195,5 @@ RA:
         }
 
     }
+    return 0;
 }
-
-// int main()
-// {
-//     int row,col;
-//     row = 10;
-//     col = 10;
-//     int num = 10;
-//     Garden** garden = (Garden**)malloc(sizeof(Garden*) * row);
-
-//     for (int i = 0; i < row; i++) {
-//         garden[i] = (Garden*)malloc(sizeof(Garden) * col);
-//     }
-
-//     generate(garden,row,col,num);
-
-
-//     FILE *file = fopen("output.txt", "w");
-//     if (file == NULL) {
-//         perror("Error opening file");
-//         return 1;
-//     }
-
-//     for(int i=0;i<row;i++)
-//     {
-//         for(int j=0;j<col;j++)
-//         {
-//             fprintf(file,"%d ",garden[i][j]);
-//         }
-//         fprintf(file,"\n");
-//     }
-
-//     fprintf(file,"------------------------\n");
-//     for(int i=0;i<row;i++)
-//     {
-//         for(int j=0;j<col;j++)
-//         {
-//             if(garden[i][j].isEmpty == 0)fprintf(file,"# ");
-//             else fprintf(file,"   ");
-//         }
-//         fprintf(file,"\n");
-//     }
-// }
